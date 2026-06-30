@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+
+type Clinic = {
+  subscription_status: string;
+  trial_messages_used: number;
+  messages_used_this_cycle: number;
+  plan_id: string;
+};
 
 type Patient = {
   id: string;
@@ -21,12 +29,30 @@ const STATUS_LABEL: Record<string, { text: string; cls: string }> = {
 };
 
 export default function Dashboard() {
+  const router = useRouter();
   const supabase = createClient();
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [clinic, setClinic] = useState<Clinic | null>(null);
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [toast, setToast] = useState("");
 
   async function loadPatients() {
+    const { data: user } = await supabase.auth.getUser();
+    const { data: member } = await supabase
+      .from("clinic_members")
+      .select("clinic_id")
+      .eq("auth_user_id", user.user?.id)
+      .single();
+
+    if (member) {
+      const { data: clinicData } = await supabase
+        .from("clinics")
+        .select("subscription_status, trial_messages_used, messages_used_this_cycle, plan_id")
+        .eq("id", member.clinic_id)
+        .single();
+      setClinic(clinicData);
+    }
+
     const { data } = await supabase
       .from("patients")
       .select("id, name, gender, reminder_status, created_at")
@@ -81,7 +107,7 @@ export default function Dashboard() {
         <h2 className="text-[21px] font-extrabold mt-0.5">عيادتك</h2>
       </div>
 
-      <div className="flex gap-2.5 px-5 mb-4.5">
+      <div className="flex gap-2.5 px-5 mb-4">
         <div className="flex-1 bg-blue-pale rounded-2xl px-3.5 py-3">
           <div className="text-xl font-extrabold text-brand-deep">{sentToday}</div>
           <div className="text-[11.5px] text-ink-soft font-semibold mt-0.5">رسائل مُرسلة</div>
@@ -92,12 +118,31 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <Link
-        href="/add-patient"
-        className="mx-5 mb-4.5 py-4 rounded-2xl bg-brand-deep text-white text-center font-bold text-base shadow-lg shadow-brand-deep/20"
+      <button
+        onClick={() => router.push("/add-patient")}
+        className="mx-5 mb-4 py-4 rounded-2xl bg-brand-deep text-white text-center font-bold text-base shadow-lg shadow-brand-deep/20"
       >
         ＋ إضافة عميل جديد
-      </Link>
+      </button>
+
+      {clinic?.subscription_status === "trialing" && (
+        <div className="mx-5 mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-center justify-between">
+          <div>
+            <div className="text-[13px] font-bold text-amber-800">
+              فترة التجربة المجانية
+            </div>
+            <div className="text-[12px] text-amber-700 mt-0.5">
+              استخدمت {clinic.trial_messages_used} من 5 رسائل مجانية
+            </div>
+          </div>
+          <Link
+            href="/pricing"
+            className="bg-amber-500 text-white text-[12px] font-bold px-3 py-1.5 rounded-xl"
+          >
+            اشترك الآن
+          </Link>
+        </div>
+      )}
 
       <div className="px-5 text-[13px] font-bold text-ink-soft mb-2">عملاء اليوم</div>
 
@@ -118,7 +163,7 @@ export default function Dashboard() {
               key={p.id}
               className="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3.5"
             >
-              <div className={`w-10.5 h-10.5 rounded-full flex items-center justify-center font-bold ${avatarCls}`}>
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-base ${avatarCls}`}>
                 {p.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
@@ -143,7 +188,7 @@ export default function Dashboard() {
       </div>
 
       {toast && (
-        <div className="fixed bottom-6 left-5 right-5 max-w-[390px] mx-auto bg-ink text-white px-4.5 py-3.5 rounded-2xl text-[13.5px] font-semibold text-center z-50">
+        <div className="fixed bottom-6 left-5 right-5 max-w-[390px] mx-auto bg-ink text-white px-4 py-3.5 rounded-2xl text-[13.5px] font-semibold text-center z-50">
           {toast}
         </div>
       )}

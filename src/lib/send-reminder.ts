@@ -69,13 +69,25 @@ export async function sendReminder(patientId: string) {
     return { ok: false, reason: "العيادة غير موجودة" };
   }
 
-  // ---- Quota enforcement (subscription plans) ----
-  const quota = PLAN_QUOTAS[clinic.plan_id] ?? 250;
-  if (clinic.messages_used_this_cycle >= quota) {
-    return {
-      ok: false,
-      reason: "تم الوصول لسقف الرسايل المسموح به في الباقة هذا الشهر",
-    };
+  // ---- Quota enforcement ----
+  const isTrial = clinic.subscription_status === "trialing";
+
+  if (isTrial) {
+    if (clinic.trial_messages_used >= 5) {
+      return {
+        ok: false,
+        reason: "انتهت رسائل التجربة المجانية (5 رسائل). يرجى الاشتراك للاستمرار.",
+        upgrade: true,
+      };
+    }
+  } else {
+    const quota = PLAN_QUOTAS[clinic.plan_id] ?? 250;
+    if (clinic.messages_used_this_cycle >= quota) {
+      return {
+        ok: false,
+        reason: "تم الوصول لسقف الرسائل المسموح به في الباقة هذا الشهر",
+      };
+    }
   }
 
   // ---- Decide which channel(s) to use ----
@@ -150,10 +162,18 @@ export async function sendReminder(patientId: string) {
     .eq("id", patient.id);
 
   if (anySuccess) {
-    await supabase
-      .from("clinics")
-      .update({ messages_used_this_cycle: clinic.messages_used_this_cycle + results.filter(r => r.ok).length })
-      .eq("id", clinic.id);
+    const successCount = results.filter(r => r.ok).length;
+    if (isTrial) {
+      await supabase
+        .from("clinics")
+        .update({ trial_messages_used: clinic.trial_messages_used + successCount })
+        .eq("id", clinic.id);
+    } else {
+      await supabase
+        .from("clinics")
+        .update({ messages_used_this_cycle: clinic.messages_used_this_cycle + successCount })
+        .eq("id", clinic.id);
+    }
   }
 
   return { ok: anySuccess, results };
