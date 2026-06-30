@@ -96,7 +96,7 @@ export default function AdminPage() {
             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-bg text-sm"
           >
             <option value="whatsapp_first">واتساب أولًا — وإيميل لو مفيش رقم</option>
-            <option value="email_only">إيميل فقط (الأرخص)</option>
+            <option value="email_only">إيميل فقط</option>
             <option value="both">إرسال على الاتنين معًا</option>
           </select>
         </div>
