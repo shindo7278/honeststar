@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
     case EventName.SubscriptionCreated:
     case EventName.SubscriptionActivated: {
       const sub = event.data;
-      const clinicUserId = sub.customData?.clinic_user_id as string | undefined;
+      const customData = sub.customData as Record<string, unknown> | null;
+const clinicUserId = customData?.clinic_user_id as string | undefined;
       const priceId = sub.items?.[0]?.price?.id;
       const planId = priceId ? await resolvePlanId(priceId, supabase) : "basic";
 
