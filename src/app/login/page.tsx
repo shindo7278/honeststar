@@ -73,6 +73,13 @@ export default function LoginPage() {
         >
           {loading ? "جاري الدخول..." : "تسجيل الدخول"}
         </button>
+
+        <p className="text-center text-[13px] text-ink-soft mt-5">
+          عيادة جديدة؟{" "}
+          <a href="/signup" className="text-brand-deep font-bold">
+            إنشاء حساب
+          </a>
+        </p>
       </form>
     </div>
   );
