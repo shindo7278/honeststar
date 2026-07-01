@@ -9,27 +9,21 @@ const PLANS = [
     id: "basic",
     name: "الأساسية",
     price: 19,
-    quota: 250,
-    doctors: 1,
-    priceIdEnv: "NEXT_PUBLIC_PADDLE_PRICE_BASIC",
+    priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_BASIC!,
     features: ["250 رسالة شهريًا", "حساب دكتور واحد", "تتبع الضغط على اللينك"],
   },
   {
     id: "standard",
     name: "المتوسطة",
     price: 27,
-    quota: 450,
-    doctors: 2,
-    priceIdEnv: "NEXT_PUBLIC_PADDLE_PRICE_STANDARD",
+    priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_STANDARD!,
     features: ["450 رسالة شهريًا", "حسابين دكتور", "تخصيص توقيت الإرسال", "تقرير شهري"],
   },
   {
     id: "pro",
     name: "الاحترافية",
     price: 35,
-    quota: 700,
-    doctors: 5,
-    priceIdEnv: "NEXT_PUBLIC_PADDLE_PRICE_PRO",
+    priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO!,
     features: ["700 رسالة شهريًا", "5 حسابات دكاترة", "تخصيص نص الرسالة", "دعم بالأولوية"],
   },
 ];
@@ -40,10 +34,11 @@ export default function PricingPage() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   useEffect(() => {
-    initializePaddle({
-      environment: (process.env.NEXT_PUBLIC_PADDLE_ENV as "sandbox" | "production") || "sandbox",
-      token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!,
-    }).then((p) => setPaddle(p));
+    const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!;
+    const env = token?.startsWith("test_") ? "sandbox"
+      : (process.env.NEXT_PUBLIC_PADDLE_ENV as "sandbox" | "production") || "sandbox";
+
+    initializePaddle({ environment: env, token }).then((p) => setPaddle(p));
   }, []);
 
   async function handleSubscribe(plan: typeof PLANS[number]) {
@@ -52,10 +47,8 @@ export default function PricingPage() {
     const { data: userData } = await supabase.auth.getUser();
     const email = userData.user?.email;
 
-    const priceId = process.env[plan.priceIdEnv as keyof typeof process.env] as string;
-
     paddle?.Checkout.open({
-      items: [{ priceId, quantity: 1 }],
+      items: [{ priceId: plan.priceId, quantity: 1 }],
       customer: email ? { email } : undefined,
       customData: { clinic_user_id: userData.user?.id, plan_id: plan.id },
       settings: {
@@ -75,10 +68,7 @@ export default function PricingPage() {
 
       <div className="space-y-4 flex-1">
         {PLANS.map((plan) => (
-          <div
-            key={plan.id}
-            className="border border-gray-100 rounded-2xl p-5 relative"
-          >
+          <div key={plan.id} className="border border-gray-100 rounded-2xl p-5">
             <div className="flex items-baseline justify-between mb-1">
               <h3 className="font-bold text-base">{plan.name}</h3>
               <div>
