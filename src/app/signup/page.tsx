@@ -20,46 +20,36 @@ export default function SignupPage() {
     setError("");
 
     if (password.length < 8) {
-      setError("كلمة المرور لازم تكون 8 أحرف على الأقل");
+      setError("Password must be at least 8 characters.");
       return;
     }
 
     setLoading(true);
 
-    // 1) Create the auth user
-    const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({ email, password });
 
     if (signUpErr || !signUpData.user) {
       setError(
         signUpErr?.message === "User already registered"
-          ? "البريد الإلكتروني ده مسجل بالفعل"
-          : "حصل خطأ أثناء إنشاء الحساب، حاول تاني"
+          ? "This email is already registered."
+          : "Something went wrong. Please try again."
       );
       setLoading(false);
       return;
     }
 
-    // 2) Create the clinic row
     const { data: clinic, error: clinicErr } = await supabase
       .from("clinics")
-      .insert({
-        name: clinicName,
-        doctor_name: doctorName,
-        owner_email: email,
-      })
+      .insert({ name: clinicName, doctor_name: doctorName, owner_email: email })
       .select()
       .single();
 
     if (clinicErr || !clinic) {
-      setError("حصل خطأ أثناء إنشاء العيادة، حاول تاني");
+      setError("Could not create clinic. Please try again.");
       setLoading(false);
       return;
     }
 
-    // 3) Link the auth user to the clinic as its owner
     const { error: memberErr } = await supabase.from("clinic_members").insert({
       clinic_id: clinic.id,
       auth_user_id: signUpData.user.id,
@@ -69,7 +59,7 @@ export default function SignupPage() {
     setLoading(false);
 
     if (memberErr) {
-      setError("حصل خطأ أثناء ربط الحساب بالعيادة، تواصل معانا");
+      setError("Account created but linking failed. Please contact support.");
       return;
     }
 
@@ -80,33 +70,33 @@ export default function SignupPage() {
     <div className="flex flex-col justify-center min-h-screen px-7 py-8">
       <div className="text-center mb-9">
         <span className="text-4xl block mb-2">✦</span>
-        <h1 className="text-2xl font-extrabold text-brand-deep">إنشاء حساب جديد</h1>
-        <p className="text-sm text-ink-soft mt-1.5">ابدأ تجربتك المجانية مع Honeststar</p>
+        <h1 className="text-2xl font-extrabold text-brand-deep">Create your account</h1>
+        <p className="text-sm text-ink-soft mt-1.5">Start your free trial with Honeststar</p>
       </div>
 
       <form onSubmit={handleSignup}>
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-ink-soft mb-1.5">اسم العيادة</label>
+          <label className="block text-sm font-semibold text-ink-soft mb-1.5">Clinic name</label>
           <input
             required
             value={clinicName}
             onChange={(e) => setClinicName(e.target.value)}
-            placeholder="مثال: عيادة النور"
+            placeholder="e.g. Bright Smile Dental"
             className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 bg-bg text-[15px] focus:outline-none focus:border-brand"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-ink-soft mb-1.5">اسم الدكتور</label>
+          <label className="block text-sm font-semibold text-ink-soft mb-1.5">Doctor name</label>
           <input
             required
             value={doctorName}
             onChange={(e) => setDoctorName(e.target.value)}
-            placeholder="د. أحمد المصري"
+            placeholder="Dr. Sarah Johnson"
             className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 bg-bg text-[15px] focus:outline-none focus:border-brand"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-ink-soft mb-1.5">البريد الإلكتروني</label>
+          <label className="block text-sm font-semibold text-ink-soft mb-1.5">Email address</label>
           <input
             type="email"
             required
@@ -117,13 +107,13 @@ export default function SignupPage() {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-ink-soft mb-1.5">كلمة المرور</label>
+          <label className="block text-sm font-semibold text-ink-soft mb-1.5">Password</label>
           <input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="8 أحرف على الأقل"
+            placeholder="At least 8 characters"
             className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 bg-bg text-[15px] focus:outline-none focus:border-brand"
           />
         </div>
@@ -135,14 +125,12 @@ export default function SignupPage() {
           disabled={loading}
           className="w-full py-3.5 rounded-2xl bg-brand-deep text-white font-bold text-[15.5px] mt-2 disabled:opacity-60"
         >
-          {loading ? "جاري الإنشاء..." : "إنشاء الحساب"}
+          {loading ? "Creating account..." : "Create Account"}
         </button>
 
         <p className="text-center text-[13px] text-ink-soft mt-5">
-          عندك حساب بالفعل؟{" "}
-          <a href="/login" className="text-brand-deep font-bold">
-            تسجيل الدخول
-          </a>
+          Already have an account?{" "}
+          <a href="/login" className="text-brand-deep font-bold">Sign in</a>
         </p>
       </form>
     </div>

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Honeststar",
-  description: "تذكير العملاء بتقييم جوجل بسهولة",
+  description: "Automate Google review reminders for your clinic",
 };
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="en">
       <body>
         <div className="max-w-[430px] mx-auto min-h-screen bg-white shadow-sm">
           {children}

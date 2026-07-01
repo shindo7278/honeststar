@@ -7,24 +7,24 @@ import { createClient } from "@/lib/supabase-browser";
 const PLANS = [
   {
     id: "basic",
-    name: "الأساسية",
+    name: "Starter",
     price: 19,
     priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_BASIC!,
-    features: ["250 رسالة شهريًا", "حساب دكتور واحد", "تتبع الضغط على اللينك"],
+    features: ["250 reminders/month", "1 doctor account", "Click tracking"],
   },
   {
     id: "standard",
-    name: "المتوسطة",
+    name: "Growth",
     price: 27,
     priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_STANDARD!,
-    features: ["450 رسالة شهريًا", "حسابين دكتور", "تخصيص توقيت الإرسال", "تقرير شهري"],
+    features: ["450 reminders/month", "2 doctor accounts", "Custom send timing", "Monthly report"],
   },
   {
     id: "pro",
-    name: "الاحترافية",
+    name: "Pro",
     price: 35,
     priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO!,
-    features: ["700 رسالة شهريًا", "5 حسابات دكاترة", "تخصيص نص الرسالة", "دعم بالأولوية"],
+    features: ["700 reminders/month", "5 doctor accounts", "Custom message templates", "Priority support"],
   },
 ];
 
@@ -37,13 +37,11 @@ export default function PricingPage() {
     const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!;
     const env = token?.startsWith("test_") ? "sandbox"
       : (process.env.NEXT_PUBLIC_PADDLE_ENV as "sandbox" | "production") || "sandbox";
-
     initializePaddle({ environment: env, token }).then((p) => setPaddle(p));
   }, []);
 
   async function handleSubscribe(plan: typeof PLANS[number]) {
     setLoadingPlan(plan.id);
-
     const { data: userData } = await supabase.auth.getUser();
     const email = userData.user?.email;
 
@@ -55,15 +53,15 @@ export default function PricingPage() {
         successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?subscribed=1`,
       },
     });
-
     setLoadingPlan(null);
   }
 
   return (
     <div className="min-h-screen flex flex-col px-5 py-7">
       <div className="text-center mb-7">
-        <h1 className="text-xl font-extrabold">اختار باقتك</h1>
-        <p className="text-sm text-ink-soft mt-1.5">تقدر تغيّرها في أي وقت من الإعدادات</p>
+        <span className="text-3xl block mb-2">✦</span>
+        <h1 className="text-xl font-extrabold">Choose your plan</h1>
+        <p className="text-sm text-ink-soft mt-1.5">Change or cancel anytime from settings</p>
       </div>
 
       <div className="space-y-4 flex-1">
@@ -73,7 +71,7 @@ export default function PricingPage() {
               <h3 className="font-bold text-base">{plan.name}</h3>
               <div>
                 <span className="text-2xl font-extrabold text-brand-deep">£{plan.price}</span>
-                <span className="text-xs text-ink-soft"> /شهريًا</span>
+                <span className="text-xs text-ink-soft"> /month</span>
               </div>
             </div>
             <ul className="text-[13px] text-ink-soft space-y-1.5 mt-3 mb-4">
@@ -86,7 +84,7 @@ export default function PricingPage() {
               disabled={loadingPlan === plan.id}
               className="w-full py-3 rounded-xl bg-brand-deep text-white font-bold text-sm disabled:opacity-60"
             >
-              {loadingPlan === plan.id ? "جاري التحميل..." : "اشترك الآن"}
+              {loadingPlan === plan.id ? "Loading..." : "Subscribe Now"}
             </button>
           </div>
         ))}

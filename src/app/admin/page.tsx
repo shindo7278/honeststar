@@ -64,18 +64,16 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between px-5 pt-5 pb-3.5 border-b border-gray-100">
-        <button onClick={() => router.back()} className="w-9 h-9 rounded-full bg-blue-pale flex items-center justify-center text-brand-deep">
-          →
-        </button>
-        <div className="font-bold text-[16px]">إعدادات العيادة</div>
+        <button onClick={() => router.back()} className="w-9 h-9 rounded-full bg-blue-pale flex items-center justify-center text-brand-deep text-lg">←</button>
+        <div className="font-bold text-[16px]">Clinic Settings</div>
         <div className="w-9" />
       </div>
 
       <div className="flex-1 overflow-y-auto pb-28">
         <div className="m-5 border border-gray-100 rounded-2xl p-4">
-          <h3 className="font-bold text-[14.5px] mb-1">🔗 لينك تقييم جوجل</h3>
+          <h3 className="font-bold text-[14.5px] mb-1">🔗 Google Review Link</h3>
           <p className="text-xs text-ink-soft mb-3 leading-relaxed">
-            حط رابط صفحة التقييم بتاعة عيادتك — كل العملاء هياخدوا هذا اللينك بالضبط.
+            Paste your clinic's Google review page link — all patients will receive this exact link.
           </p>
           <input
             value={reviewLink}
@@ -86,53 +84,54 @@ export default function AdminPage() {
         </div>
 
         <div className="m-5 border border-gray-100 rounded-2xl p-4">
-          <h3 className="font-bold text-[14.5px] mb-1">📡 القناة الافتراضية للإرسال</h3>
+          <h3 className="font-bold text-[14.5px] mb-1">📡 Default Send Channel</h3>
           <p className="text-xs text-ink-soft mb-3 leading-relaxed">
-            النظام بيبعت من حساب Honeststar الموحّد. اختار إزاي يتصرف لو العميل عنده إيميل وواتساب الاتنين.
+            All messages are sent from Honeststar's central account. Choose how to handle patients with both email and WhatsApp.
           </p>
           <select
             value={channel}
             onChange={(e) => setChannel(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-bg text-sm"
           >
-            <option value="whatsapp_first">واتساب أولًا — وإيميل لو مفيش رقم</option>
-            <option value="email_only">إيميل فقط</option>
-            <option value="both">إرسال على الاتنين معًا</option>
+            <option value="whatsapp_first">WhatsApp first — email if no number</option>
+            <option value="email_only">Email only</option>
+            <option value="both">Send on both channels</option>
           </select>
         </div>
 
         <div className="m-5 border border-gray-100 rounded-2xl p-4">
-          <h3 className="font-bold text-[14.5px] mb-2">⏰ التوقيت الافتراضي</h3>
+          <h3 className="font-bold text-[14.5px] mb-2">⏰ Default Send Timing</h3>
           <select
             value={delayHours}
             onChange={(e) => setDelayHours(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-bg text-sm"
           >
-            <option value="0">فورًا</option>
-            <option value="1">بعد ساعة</option>
-            <option value="2">بعد ساعتين</option>
-            <option value="3">بعد 3 ساعات</option>
-            <option value="6">بعد 6 ساعات</option>
-            <option value="12">بعد 12 ساعة</option>
-            <option value="24">بعد يوم</option>
-            <option value="48">بعد يومين</option>
+            <option value="0">Immediately</option>
+            <option value="1">After 1 hour</option>
+            <option value="2">After 2 hours</option>
+            <option value="3">After 3 hours</option>
+            <option value="6">After 6 hours</option>
+            <option value="12">After 12 hours</option>
+            <option value="24">After 1 day</option>
+            <option value="48">After 2 days</option>
           </select>
         </div>
 
         <div className="m-5 border border-gray-100 rounded-2xl p-4">
-          <h3 className="font-bold text-[14.5px] mb-3">📝 نص الرسالة</h3>
-          <p className="text-xs text-ink-soft mb-1.5">للرجال:</p>
+          <h3 className="font-bold text-[14.5px] mb-3">📝 Message Templates</h3>
+          <p className="text-xs text-ink-soft mb-1.5">For male patients:</p>
           <textarea
             value={templateMale}
             onChange={(e) => setTemplateMale(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-bg text-sm leading-relaxed min-h-[80px] mb-3"
           />
-          <p className="text-xs text-ink-soft mb-1.5">للسيدات:</p>
+          <p className="text-xs text-ink-soft mb-1.5">For female patients:</p>
           <textarea
             value={templateFemale}
             onChange={(e) => setTemplateFemale(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-bg text-sm leading-relaxed min-h-[80px]"
           />
+          <p className="text-xs text-ink-soft mt-2">Use <code>{"{clinic_name}"}</code> and <code>{"{review_link}"}</code> as placeholders.</p>
         </div>
       </div>
 
@@ -141,7 +140,7 @@ export default function AdminPage() {
           onClick={handleSave}
           className="w-full py-3.5 rounded-2xl bg-brand-deep text-white font-bold text-[15.5px]"
         >
-          {saved ? "✓ تم الحفظ" : "حفظ التغييرات"}
+          {saved ? "✓ Saved" : "Save Changes"}
         </button>
       </div>
     </div>

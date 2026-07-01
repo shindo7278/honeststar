@@ -21,11 +21,11 @@ type Patient = {
 };
 
 const STATUS_LABEL: Record<string, { text: string; cls: string }> = {
-  not_sent: { text: "في الانتظار", cls: "bg-amber-50 text-amber-700" },
-  scheduled: { text: "مجدول ⏰", cls: "bg-amber-50 text-amber-700" },
-  sent: { text: "مُرسل", cls: "bg-blue-pale text-brand-deep" },
-  clicked: { text: "✓ تم الضغط", cls: "bg-green-50 text-green-700" },
-  failed: { text: "فشل الإرسال", cls: "bg-red-50 text-red-700" },
+  not_sent:  { text: "Pending",     cls: "bg-amber-50 text-amber-700" },
+  scheduled: { text: "Scheduled ⏰", cls: "bg-amber-50 text-amber-700" },
+  sent:      { text: "Sent",        cls: "bg-blue-pale text-brand-deep" },
+  clicked:   { text: "✓ Clicked",   cls: "bg-green-50 text-green-700" },
+  failed:    { text: "Failed",      cls: "bg-red-50 text-red-700" },
 };
 
 export default function Dashboard() {
@@ -61,9 +61,7 @@ export default function Dashboard() {
     setPatients(data || []);
   }
 
-  useEffect(() => {
-    loadPatients();
-  }, []);
+  useEffect(() => { loadPatients(); }, []);
 
   async function handleConfirmVisit(patientId: string) {
     setSendingId(patientId);
@@ -75,18 +73,14 @@ export default function Dashboard() {
     const json = await res.json();
     setSendingId(null);
 
-    if (json.ok) {
-      setToast("تم الجدولة — هتتبعت الرسالة في وقتها تلقائيًا");
-      loadPatients();
-    } else {
-      setToast(json.reason || "حصل خطأ");
-    }
+    setToast(json.ok ? "Reminder scheduled — will be sent automatically" : json.reason || "Something went wrong");
+    if (json.ok) loadPatients();
     setTimeout(() => setToast(""), 2500);
   }
 
-  const sentToday = patients.filter((p) => p.reminder_status !== "not_sent").length;
-  const clicked = patients.filter((p) => p.reminder_status === "clicked").length;
-  const clickRate = sentToday ? Math.round((clicked / sentToday) * 100) : 0;
+  const sentToday  = patients.filter((p) => p.reminder_status !== "not_sent").length;
+  const clicked    = patients.filter((p) => p.reminder_status === "clicked").length;
+  const clickRate  = sentToday ? Math.round((clicked / sentToday) * 100) : 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -94,27 +88,22 @@ export default function Dashboard() {
         <div className="font-extrabold text-[19px] text-brand-deep">
           Honest<span className="text-ink">star</span>
         </div>
-        <Link
-          href="/admin"
-          className="w-9 h-9 rounded-full bg-blue-pale flex items-center justify-center text-brand-deep"
-        >
-          ⚙
-        </Link>
+        <Link href="/admin" className="w-9 h-9 rounded-full bg-blue-pale flex items-center justify-center text-brand-deep">⚙</Link>
       </div>
 
       <div className="px-5 pt-5 pb-2">
-        <div className="text-[13px] text-ink-soft font-semibold">صباح الخير 👋</div>
-        <h2 className="text-[21px] font-extrabold mt-0.5">عيادتك</h2>
+        <div className="text-[13px] text-ink-soft font-semibold">Good morning 👋</div>
+        <h2 className="text-[21px] font-extrabold mt-0.5">Your Clinic</h2>
       </div>
 
       <div className="flex gap-2.5 px-5 mb-4">
         <div className="flex-1 bg-blue-pale rounded-2xl px-3.5 py-3">
           <div className="text-xl font-extrabold text-brand-deep">{sentToday}</div>
-          <div className="text-[11.5px] text-ink-soft font-semibold mt-0.5">رسائل مُرسلة</div>
+          <div className="text-[11.5px] text-ink-soft font-semibold mt-0.5">Reminders sent</div>
         </div>
         <div className="flex-1 bg-blue-pale rounded-2xl px-3.5 py-3">
           <div className="text-xl font-extrabold text-brand-deep">{clickRate}%</div>
-          <div className="text-[11.5px] text-ink-soft font-semibold mt-0.5">نسبة الضغط</div>
+          <div className="text-[11.5px] text-ink-soft font-semibold mt-0.5">Click rate</div>
         </div>
       </div>
 
@@ -122,49 +111,40 @@ export default function Dashboard() {
         onClick={() => router.push("/add-patient")}
         className="mx-5 mb-4 py-4 rounded-2xl bg-brand-deep text-white text-center font-bold text-base shadow-lg shadow-brand-deep/20"
       >
-        ＋ إضافة عميل جديد
+        + Add New Patient
       </button>
 
       {clinic?.subscription_status === "trialing" && (
         <div className="mx-5 mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-center justify-between">
           <div>
-            <div className="text-[13px] font-bold text-amber-800">
-              فترة التجربة المجانية
-            </div>
+            <div className="text-[13px] font-bold text-amber-800">Free Trial</div>
             <div className="text-[12px] text-amber-700 mt-0.5">
-              استخدمت {clinic.trial_messages_used} من 5 رسائل مجانية
+              {clinic.trial_messages_used} of 5 free messages used
             </div>
           </div>
-          <Link
-            href="/pricing"
-            className="bg-amber-500 text-white text-[12px] font-bold px-3 py-1.5 rounded-xl"
-          >
-            اشترك الآن
+          <Link href="/pricing" className="bg-amber-500 text-white text-[12px] font-bold px-3 py-1.5 rounded-xl">
+            Subscribe
           </Link>
         </div>
       )}
 
-      <div className="px-5 text-[13px] font-bold text-ink-soft mb-2">عملاء اليوم</div>
+      <div className="px-5 text-[13px] font-bold text-ink-soft mb-2">Today's Patients</div>
 
       <div className="px-5 pb-24 flex-1 overflow-y-auto space-y-2.5">
         {patients.length === 0 && (
           <p className="text-sm text-ink-soft text-center py-10">
-            لا يوجد عملاء بعد — دوس على "إضافة عميل جديد" للبدء
+            No patients yet — tap "Add New Patient" to get started
           </p>
         )}
         {patients.map((p) => {
-          const status = STATUS_LABEL[p.reminder_status] || STATUS_LABEL.not_sent;
-          const avatarCls =
-            p.gender === "female"
-              ? "bg-pinkish text-pinkish-deep"
-              : "bg-blue-pale text-brand-deep";
+          const status   = STATUS_LABEL[p.reminder_status] || STATUS_LABEL.not_sent;
+          const avatarCls = p.gender === "female"
+            ? "bg-pinkish text-pinkish-deep"
+            : "bg-blue-pale text-brand-deep";
           return (
-            <div
-              key={p.id}
-              className="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3.5"
-            >
+            <div key={p.id} className="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3.5">
               <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-base ${avatarCls}`}>
-                {p.name.charAt(0)}
+                {p.name.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-bold text-[14.5px] truncate">{p.name}</div>
@@ -175,7 +155,7 @@ export default function Dashboard() {
                   disabled={sendingId === p.id}
                   className="bg-brand-deep text-white text-xs font-bold px-3 py-2 rounded-xl disabled:opacity-60"
                 >
-                  {sendingId === p.id ? "..." : "تم — ابعت"}
+                  {sendingId === p.id ? "..." : "Done — Send"}
                 </button>
               ) : (
                 <span className={`text-[11px] font-bold px-2.5 py-1.5 rounded-full whitespace-nowrap ${status.cls}`}>

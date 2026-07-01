@@ -20,7 +20,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      setError("Incorrect email or password. Please try again.");
       setLoading(false);
       return;
     }
@@ -33,14 +33,12 @@ export default function LoginPage() {
       <div className="text-center mb-12">
         <span className="text-4xl block mb-2">✦</span>
         <h1 className="text-2xl font-extrabold text-brand-deep">Honeststar</h1>
-        <p className="text-sm text-ink-soft mt-1.5">تذكير العملاء بتقييم جوجل بسهولة</p>
+        <p className="text-sm text-ink-soft mt-1.5">Automate Google review reminders for your clinic</p>
       </div>
 
       <form onSubmit={handleLogin}>
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-ink-soft mb-1.5">
-            البريد الإلكتروني
-          </label>
+          <label className="block text-sm font-semibold text-ink-soft mb-1.5">Email address</label>
           <input
             type="email"
             required
@@ -51,9 +49,7 @@ export default function LoginPage() {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-ink-soft mb-1.5">
-            كلمة المرور
-          </label>
+          <label className="block text-sm font-semibold text-ink-soft mb-1.5">Password</label>
           <input
             type="password"
             required
@@ -71,13 +67,13 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full py-3.5 rounded-2xl bg-brand-deep text-white font-bold text-[15.5px] mt-2 disabled:opacity-60"
         >
-          {loading ? "جاري الدخول..." : "تسجيل الدخول"}
+          {loading ? "Signing in..." : "Sign In"}
         </button>
 
         <p className="text-center text-[13px] text-ink-soft mt-5">
-          عيادة جديدة؟{" "}
+          New clinic?{" "}
           <a href="/signup" className="text-brand-deep font-bold">
-            إنشاء حساب
+            Create an account
           </a>
         </p>
       </form>
