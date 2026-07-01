@@ -4,27 +4,48 @@ import { useEffect, useState } from "react";
 import { initializePaddle, Paddle } from "@paddle/paddle-js";
 import { createClient } from "@/lib/supabase-browser";
 
-const PLANS = [
+const PLAN_INFO = [
   {
     id: "basic",
+    envKey: "NEXT_PUBLIC_PADDLE_PRICE_BASIC",
     name: "Starter",
     price: 19,
-    priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_BASIC!,
-    features: ["250 reminders/month", "1 doctor account", "Click tracking"],
+    features: [
+      "250 reminders/month",
+      "1 doctor account",
+      "Click tracking",
+      "Custom message templates",
+      "Custom send timing",
+    ],
   },
   {
     id: "standard",
+    envKey: "NEXT_PUBLIC_PADDLE_PRICE_STANDARD",
     name: "Growth",
     price: 27,
-    priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_STANDARD!,
-    features: ["450 reminders/month", "2 doctor accounts", "Custom send timing", "Monthly report"],
+    features: [
+      "450 reminders/month",
+      "2 doctor accounts",
+      "Click tracking",
+      "Custom message templates",
+      "Custom send timing",
+      "Monthly report",
+    ],
   },
   {
     id: "pro",
+    envKey: "NEXT_PUBLIC_PADDLE_PRICE_PRO",
     name: "Pro",
     price: 35,
-    priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO!,
-    features: ["700 reminders/month", "5 doctor accounts", "Custom message templates", "Priority support"],
+    features: [
+      "700 reminders/month",
+      "5 doctor accounts",
+      "Click tracking",
+      "Custom message templates",
+      "Custom send timing",
+      "Monthly report",
+      "Priority support",
+    ],
   },
 ];
 
